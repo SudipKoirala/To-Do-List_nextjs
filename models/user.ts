@@ -36,7 +36,6 @@ const UserSchema = new Schema<IUser>({
   },
 });
 
-// Virtual - fix the get() method
 UserSchema.virtual("confirmPassword")
   .set(function (this: IUser, value: string) {
     (this as any)._confirmPassword = value.trim();
@@ -45,7 +44,7 @@ UserSchema.virtual("confirmPassword")
     return (this as any)._confirmPassword;
   });
 
-// Pre-validate hook - remove explicit next type
+
 UserSchema.pre<IUser>("validate", function (next: any) {
   if (this.confirmPassword && this.confirmPassword !== this.password) {
     return next(new Error("Passwords do not match"));
