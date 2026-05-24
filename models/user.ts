@@ -45,11 +45,10 @@ UserSchema.virtual("confirmPassword")
   });
 
 
-UserSchema.pre<IUser>("validate", function (next: any) {
+UserSchema.pre<IUser>("validate",async function () {
   if (this.confirmPassword && this.confirmPassword !== this.password) {
-    return next(new Error("Passwords do not match"));
+    return new Error("Passwords do not match");
   }
-  next();
 });
 
 // Pre-save hook - add proper typing

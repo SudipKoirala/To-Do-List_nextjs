@@ -1,8 +1,10 @@
+import { connectDb } from "@/lib/db";
 import { User } from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
+        await connectDb();
         const { userName, firstName, lastName, password, confirmPassword } =
         await req.json();
     if (!userName || !firstName || !lastName || !password || !confirmPassword) {
