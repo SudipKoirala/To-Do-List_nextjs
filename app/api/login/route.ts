@@ -2,7 +2,7 @@ import { connectDb } from "@/lib/db";
 import { User } from "@/models/user";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export const  POST=async(req: Request) =>{
     try {
         await connectDb()
         const {userName, password} = await req.json();
@@ -23,6 +23,13 @@ export async function POST(req: Request) {
     {
         status:401
     })
+    }
+
+    const isMatchedPw = user.comparePassword(password)
+    if(!isMatchedPw){
+        return NextResponse.json({
+            message: "Password milena"
+        }, {status: 400})
     }
     return  NextResponse.json({
         message:"user chha hai"
