@@ -42,7 +42,7 @@ export const  POST=async(req: Request) =>{
 
     const res = NextResponse.json({message: "Login vayeu hai", user:{userName: user.userName, firstName: user.firstName,lastname: user.lastName}},)
     setAuthCookies(res, accessToken, refreshToken)
-    return res
+    return res;
 
     } catch (error: any) {
         return NextResponse.json({message: error.message},{status: 400})
