@@ -1,8 +1,5 @@
-import { User } from "@/models/user";
+
 import mongoose from "mongoose";
-import { NextResponse } from "next/server";
-import { setAuthCookies } from "./auth-cookies";
-import { generateAccessToken, generateRefreshToken } from "./jwt";
 
 const MONGO_URI = process.env.MONGO_URI;
 
