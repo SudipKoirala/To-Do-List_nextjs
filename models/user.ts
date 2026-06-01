@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
-
 interface IUser extends Document {
   userName: string;
   firstName: string;
   lastName: string;
   password: string;
+  refreshToken: string;       
   confirmPassword?: string;
   _confirmPassword?: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -34,6 +34,9 @@ const UserSchema = new Schema<IUser>({
     required: true,
     minlength: 6,
   },
+  refreshToken: {
+    type: String,
+  },
 });
 
 UserSchema.virtual("confirmPassword")
@@ -45,20 +48,18 @@ UserSchema.virtual("confirmPassword")
   });
 
 
-UserSchema.pre<IUser>("validate",async function () {
+UserSchema.pre<IUser>("validate", function () {
   if (this.confirmPassword && this.confirmPassword !== this.password) {
-    return new Error("Passwords do not match");
+    this.invalidate("confirmPassword", "Passwords do not match");
   }
 });
 
-// Pre-save hook - add proper typing
 UserSchema.pre<IUser>("save", async function () {
   if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Instance method - add proper typing
 UserSchema.methods.comparePassword = async function (
   this: IUser,
   candidatePassword: string

@@ -1,4 +1,6 @@
+import { setAuthCookies } from "@/lib/auth-cookies";
 import { connectDb } from "@/lib/db";
+import { generateAccessToken, generateRefreshToken } from "@/lib/jwt";
 import { User } from "@/models/user";
 import { NextResponse } from "next/server";
 
@@ -18,22 +20,30 @@ export const  POST=async(req: Request) =>{
     const user = await User.findOne({userName})
     if(!user){
         return NextResponse.json({
-            message: "User chhaina, username check gara"
+            message: "K lekhya milena hai"
         },
     {
         status:401
     })
     }
 
-    const isMatchedPw = user.comparePassword(password)
+    const isMatchedPw = await user.comparePassword(password)
     if(!isMatchedPw){
         return NextResponse.json({
-            message: "Password milena"
+            message: "K lekhya milena hai"
         }, {status: 400})
     }
-    return  NextResponse.json({
-        message:"user chha hai"
-    })
+
+    const accessToken = generateAccessToken(user._id as string)
+    const refreshToken = generateRefreshToken(user._id as string)
+
+    user.refreshToken= refreshToken;
+    await user.save();
+
+    const res = NextResponse.json({message: "Login vayeu hai", user:{userName: user.userName, firstName: user.firstName,lastname: user.lastName}},)
+    setAuthCookies(res, accessToken, refreshToken)
+    return res
+
     } catch (error: any) {
         return NextResponse.json({message: error.message},{status: 400})
     }
