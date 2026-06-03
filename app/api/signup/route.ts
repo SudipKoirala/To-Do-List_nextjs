@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         password,
         confirmPassword,
     });
-    return NextResponse.json({
+    return NextResponse.json({user,
         message: "User create vayo hai",
     }, {
         status: 200,

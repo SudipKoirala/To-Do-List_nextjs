@@ -4,8 +4,13 @@ import { JwtPayload } from "jsonwebtoken";
 import { headers } from "next/headers";
 
 export function middleware (req: NextRequest){
+    const path = req.nextUrl.pathname
     const accessToken = req.cookies.get("accessToken")?.value
-const isApiReq = req.nextUrl.pathname.startsWith("/api")
+const isApiReq = path.startsWith("/api")
+const isProtectedPage = path.startsWith("/dashboard") || path.startsWith("/profile")
+
+
+const isAuth = path.startsWith("/login") || path.startsWith("/signup")
 
     if(!accessToken){
         if(isApiReq){
@@ -19,9 +24,13 @@ const isApiReq = req.nextUrl.pathname.startsWith("/api")
 
     try {
         const decoded = verifyAccessToken(accessToken) as JwtPayload
+
+        if(isAuth){
+            return NextResponse.redirect(new URL("/dashboard", req.url))
+        }
         const newHeader = new Headers(req.headers)
         newHeader.set("userID", decoded.userId)
-        return NextResponse.json({
+        return NextResponse.next({
             request:{
                 headers:newHeader
             } 
@@ -32,10 +41,13 @@ const isApiReq = req.nextUrl.pathname.startsWith("/api")
                 message: "token invalid ya expire vayo"
             }, {status: 401})
         }
-        return NextResponse.redirect(new URL("/login", req.url));
+        if(isProtectedPage){
+            return NextResponse.redirect(new URL("/login", req.url));
+        }
+        return NextResponse.next();
     }
 }
 
 export const config = {
-    matchers:["/dashboard/:path*", "/profile/:path*", "/api/user/:path*"]
+    matcher:["/dashboard/:path*", "/profile/:path*", "/api/user/:path*"]
 }
