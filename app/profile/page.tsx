@@ -9,6 +9,7 @@ interface User {
   userName: string;
   firstName: string;
   lastName: string;
+  password: string;
 }
 
 export default function ProfilePage() {
@@ -22,11 +23,10 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      let res = await fetch("/api/user/profile", {
+      let res = await fetch("/api/auth/profile", {
         credentials: "include",
       });
 
-      // If 401, try to refresh
       if (res.status === 401) {
         const refreshRes = await fetch("/api/auth/refresh", {
           method: "POST",
@@ -34,12 +34,10 @@ export default function ProfilePage() {
         });
 
         if (refreshRes.ok) {
-          // Retry profile fetch
-          res = await fetch("/api/user/profile", {
+          res = await fetch("/api/auth/profile", {
             credentials: "include",
           });
         } else {
-          // Refresh failed, go to login
           router.push("/login");
           return;
         }
@@ -52,7 +50,7 @@ export default function ProfilePage() {
 
       const data = await res.json();
       setUser(data.user);
-    } catch (error) {
+    } catch {
       router.push("/login");
     } finally {
       setLoading(false);
@@ -67,39 +65,66 @@ export default function ProfilePage() {
       });
 
       router.push("/login");
-    } catch (error) {
+    } catch {
       console.log("Logout failed");
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse text-gray-500 text-lg">
+          Loading profile...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
-      <h1>Profile</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
+          Profile
+        </h1>
 
-      {user && (
-        <div>
-          <p>
-            <strong>Username:</strong> {user.userName}
-          </p>
-          <p>
-            <strong>First Name:</strong> {user.firstName}
-          </p>
-          <p>
-            <strong>Last Name:</strong> {user.lastName}
-          </p>
-        </div>
-      )}
+        {user && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Username</p>
+              <p className="text-lg font-medium text-gray-800">
+                {user.userName}
+              </p>
+            </div>
 
-      <button
-        onClick={handleLogout}
-        style={{ marginTop: "20px", padding: "10px 20px" }}
-      >
-        Logout
-      </button>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">First Name</p>
+              <p className="text-lg font-medium text-gray-800">
+                {user.firstName}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">Last Name</p>
+              <p className="text-lg font-medium text-gray-800">
+                {user.lastName}
+              </p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-500">PW</p>
+              <p className="text-lg font-medium text-gray-800">
+                {user.password}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={handleLogout}
+          className="mt-8 w-full bg-red-500 hover:bg-red-600 active:scale-[0.98] transition text-white font-medium py-3 rounded-lg shadow-md"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
