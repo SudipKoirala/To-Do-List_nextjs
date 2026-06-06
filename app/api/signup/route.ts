@@ -3,42 +3,59 @@ import { User } from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-    try {
-        await connectDb();
-        const { userName, firstName, lastName, password, confirmPassword } =
-        await req.json();
-    if (!userName || !firstName || !lastName || !password || !confirmPassword) {
-        return NextResponse.json(
-            { message: "Sabai field varana hr" },
-            { status: 400 },
-        );
-    }
+    await connectDb();
+  const { firstName, lastName, userName, password, confirmPassword } =
+    await req.json();
 
-    const existing = await User.findOne({ userName });
-    if (existing) {
-        return NextResponse.json(
-            { message: "User pailai chha, aarko banau" },
-            { status: 400 },
-        );
-    }
-
-    const user = await User.create({
-        userName,
-        firstName,
-        lastName,
-        password,
-        confirmPassword,
-    });
-    return NextResponse.json({user,
-        message: "User create vayo hai",
-    }, {
-        status: 200,
-    },
+  if (!firstName || !lastName || !userName || !password) {
+    return NextResponse.json(
+      {
+        message: "sabai varana hrr",
+      },
+      { status: 400 },
     );
-    } catch (error) {
-        console.log(error)
-        return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
 
+  if (confirmPassword !== password) {
+    return NextResponse.json(
+      {
+        message: "password match vayena",
+      },
+      { status: 400 },
+    );
+  }
+  try {
+    const existingUser = await User.findOne
+    ({ userName });
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          message: "User pailai chha, try different name ",
+        },
+        { status: 400 },
+      );
     }
-    
+    const user = await User.create({
+      firstName,
+      lastName,
+      userName,
+      password,
+      confirmPassword
+    });
+
+    return NextResponse.json(
+      {
+        message: "User create vayo ",
+        user,
+      },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        message: `Signup ma error aayo: ${error.message}`,
+      },
+      { status: 400 },
+    );
+  }
 }

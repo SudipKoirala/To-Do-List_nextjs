@@ -23,27 +23,34 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
+      console.log("Fetching profile...");
       let res = await fetch("/api/auth/profile", {
         credentials: "include",
       });
 
+      console.log("Profile fetch response status:", res.status);
+
       if (res.status === 401) {
+        console.log("Got 401, attempting token refresh...");
         const refreshRes = await fetch("/api/auth/refresh", {
           method: "POST",
           credentials: "include",
         });
 
         if (refreshRes.ok) {
+          console.log("Token refreshed successfully");
           res = await fetch("/api/auth/profile", {
             credentials: "include",
           });
         } else {
+          console.log("Token refresh failed, redirecting to login");
           router.push("/login");
           return;
         }
       }
 
       if (!res.ok) {
+        console.log("Profile fetch failed with status:", res.status);
         router.push("/login");
         return;
       }

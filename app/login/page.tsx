@@ -44,6 +44,10 @@ export default function LoginPage() {
         return;
       }
 
+      // Debug: Check if navigation works
+      console.log("Login successful, navigating to /profile");
+      console.log("Response status:", res.status);
+
       router.push("/profile");
     } catch (err) {
       setError("Something went wrong");

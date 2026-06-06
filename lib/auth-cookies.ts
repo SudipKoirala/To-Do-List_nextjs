@@ -1,61 +1,61 @@
 import { NextResponse } from "next/server";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "production"
 
 const ACCESS_TOKEN = "accessToken";
 const REFRESH_TOKEN = "refreshToken";
 
+
 export const setAuthCookies = (
   res: NextResponse,
-  accessToken: string,
-  refreshToken: string,
-) => {
-  res.cookies.set(ACCESS_TOKEN, accessToken, {
+  accessToken:string,
+  refreshToken:string,
+)=>{
+  res.cookies.set(ACCESS_TOKEN, accessToken,{
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
     maxAge: 15 * 60,
-    path: "/",
-  });
+    path:"/"
+  })
 
-  res.cookies.set(REFRESH_TOKEN, refreshToken, {
+ res.cookies.set(REFRESH_TOKEN, refreshToken,{
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60,
-    path: "/",
-  });
-
-  return res;
-};
+    maxAge: 7 * 24 *60 * 60,
+    path:"/"
+  })
+}
 
 
 export const setAccessToken = (res: NextResponse, accessToken: string)=>{
   res.cookies.set(ACCESS_TOKEN, accessToken,{
     httpOnly: true,
-    secure:isProduction,
+    secure: isProduction,
     sameSite: "lax",
-    maxAge: 15*60,
+    maxAge: 15 * 60,
     path:"/"
   })
 }
 
-export const deleteAuthCookies = (res: NextResponse) => {
-  res.cookies.set(ACCESS_TOKEN, "", {
+
+export const deleteAuthCookies = (
+  res: NextResponse,
+)=>{
+  res.cookies.set(ACCESS_TOKEN, "",{
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
+    maxAge: 0,
+    path:"/"
+  })
 
-  res.cookies.set(REFRESH_TOKEN, "", {
+ res.cookies.set(REFRESH_TOKEN, "",{
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
-
-  return res;
-};
+    maxAge: 0,
+    path:"/"
+  })
+}

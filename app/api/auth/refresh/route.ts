@@ -9,7 +9,7 @@
 import { deleteAuthCookies, setAccessToken } from "@/lib/auth-cookies";
 import { connectDb } from "@/lib/db";
 import { generateAccessToken, verifyRefreshToken } from "@/lib/jwt";
-import { IUser, User } from "@/models/user";
+import {  User } from "@/models/user";
 import { JwtPayload } from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server"
 

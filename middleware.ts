@@ -1,36 +1,42 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAccessToken } from "./lib/jwt"
+import { JwtPayload } from "jsonwebtoken"
 
-export function middleware(req: NextRequest) {
-    const path = req.nextUrl.pathname
-    const accessToken = req.cookies.get("accessToken")?.value
-    const isApiReq = path.startsWith("/api")
-    const isProtectedPage = path.startsWith("/profile")
 
-    console.log(`[Middleware] Path: ${path}, Has Token: ${!!accessToken}`)
+export const middleware = (req: NextRequest)=>{
+    const isAPI = req.nextUrl.pathname.startsWith("/api")
 
-    const isAuth = path.startsWith("/login") || path.startsWith("/signup")
+    try {
+        const accessToken = req.cookies.get("accessToken")?.value
 
-    // If no token, redirect to login
-    if (!accessToken) {
-        console.log(`[Middleware] No token for path: ${path}`)
-        if (isApiReq) {
+    if(!accessToken){
+        if(isAPI){
             return NextResponse.json({
-                message: "token chhaina"
-            }, { status: 401 })
+                message: "AccessToken chhaina"
+            },{status: 401})
         }
         return NextResponse.redirect(new URL("/login", req.url))
     }
-
-    // If already authenticated and trying to access login/signup, redirect to profile
-    if (isAuth) {
-        console.log(`[Middleware] User already authenticated, redirecting from ${path} to /profile`)
-        return NextResponse.redirect(new URL("/profile", req.url))
+    const decoded = verifyAccessToken(accessToken) as JwtPayload
+    const headers = new Headers(req.headers)
+    headers.set("userId", decoded.userId)
+    return NextResponse.next({
+        request: {
+            headers: headers
+        }
+    })
+    } catch (error) {
+        console.log(`middleware error: ${error}`)
+        if(isAPI){
+            return NextResponse.json({
+                message: "token invalid or expired"
+            },{status: 401})
+        }
+        return NextResponse.redirect(new URL("/login", req.url))
     }
-
-    // Allow the request through (JWT verification happens in API endpoints)
-    return NextResponse.next();
 }
+
 
 export const config = {
-    matcher: ["/profile/:path*", "/api/auth/:path*"]
-}
+    matcher:["/dashboard", "/dashboard/:path*", "/profile", "/profile/:path*"]
+} 

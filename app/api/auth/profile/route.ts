@@ -10,7 +10,11 @@ export const GET = async (req: NextRequest) => {
 
         const accessToken = req.cookies.get("accessToken")?.value;
 
+        console.log("Profile API called. Cookies:", req.headers.get("cookie"));
+        console.log("Access token found:", !!accessToken);
+
         if (!accessToken) {
+            console.log("No access token, returning 401");
             return NextResponse.json(
                 { message: "Token chhaina" },
                 { status: 401 }
