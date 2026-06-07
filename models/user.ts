@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>({
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, required: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
-  refreshToken:{type: String }
+  refreshToken: { type: String }
 });
 
 UserSchema.virtual("confirmPassword")
@@ -45,4 +45,4 @@ UserSchema.methods.comparePassword = async function (candidatePass: string) {
 };
 
 export const User =
-  mongoose.models.user || mongoose.model<IUser>("User", UserSchema);
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

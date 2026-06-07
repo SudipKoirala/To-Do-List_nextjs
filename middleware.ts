@@ -3,34 +3,34 @@ import { verifyAccessToken } from "./lib/jwt"
 import { JwtPayload } from "jsonwebtoken"
 
 
-export const middleware = (req: NextRequest)=>{
+export const middleware = (req: NextRequest) => {
     const isAPI = req.nextUrl.pathname.startsWith("/api")
 
     try {
         const accessToken = req.cookies.get("accessToken")?.value
 
-    if(!accessToken){
-        if(isAPI){
-            return NextResponse.json({
-                message: "AccessToken chhaina"
-            },{status: 401})
+        if (!accessToken) {
+            if (isAPI) {
+                return NextResponse.json({
+                    message: "AccessToken chhaina"
+                }, { status: 401 })
+            }
+            return NextResponse.redirect(new URL("/login", req.url))
         }
-        return NextResponse.redirect(new URL("/login", req.url))
-    }
-    const decoded = verifyAccessToken(accessToken) as JwtPayload
-    const headers = new Headers(req.headers)
-    headers.set("userId", decoded.userId)
-    return NextResponse.next({
-        request: {
-            headers: headers
-        }
-    })
+        const decoded = verifyAccessToken(accessToken) as JwtPayload
+        const headers = new Headers(req.headers)
+        headers.set("userId", decoded.userId)
+        return NextResponse.next({
+            request: {
+                headers: headers
+            }
+        })
     } catch (error) {
         console.log(`middleware error: ${error}`)
-        if(isAPI){
+        if (isAPI) {
             return NextResponse.json({
                 message: "token invalid or expired"
-            },{status: 401})
+            }, { status: 401 })
         }
         return NextResponse.redirect(new URL("/login", req.url))
     }
@@ -38,5 +38,5 @@ export const middleware = (req: NextRequest)=>{
 
 
 export const config = {
-    matcher:["/dashboard", "/dashboard/:path*", "/profile", "/profile/:path*"]
+    matcher: ["/dashboard/:path*", "/profile/:path*"]
 } 
