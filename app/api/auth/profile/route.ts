@@ -8,7 +8,7 @@ export const GET = async (req: NextRequest) => {
     try {
         await connectDb();
 
-        const accessToken =  req.cookies.get("accessToken")?.value;
+        const accessToken =  req.cookies.get("accessToken")?.value as string;
 
         if (!accessToken) {
             const decoded = verifyAccessToken(accessToken) as JwtPayload;
